@@ -1,11 +1,10 @@
 import os
 import uuid
 from random import uniform
-from subprocess import CREATE_NO_WINDOW
+# from subprocess import CREATE_NO_WINDOW
 
 from bs4 import BeautifulSoup as Bs
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 
 import requests
 from time import sleep
@@ -130,7 +129,7 @@ class Parser:
             return
         result = []
         service = Service(CHROMEDRIVER_PATH)
-        service.creationflags = CREATE_NO_WINDOW
+        # service.creationflags = CREATE_NO_WINDOW
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
         options.add_argument('--no-sandbox')
