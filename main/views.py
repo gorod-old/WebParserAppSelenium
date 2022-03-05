@@ -60,9 +60,12 @@ def run_parser(request):
     else:
         info = 'update parser'
     success = Parser.start()
-    Parser().job()
-
-    return JsonResponse({'info': info, 'success': success})
+    exception = None
+    try:
+        Parser().job()
+    except Exception as e:
+        exception = str(e)
+    return JsonResponse({'info': info, 'success': success, 'exception': exception})
 
 
 def stop_parser(request):
