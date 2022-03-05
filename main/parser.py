@@ -16,6 +16,7 @@ from main.models import WorkTable
 from main.save_data import save_json
 from webparserapp.settings import setup
 
+WINDOW_SIZE = "1920,1080"
 CHROMEDRIVER_PATH = os.path.normpath(os.path.join(os.getcwd(), 'chromedriver', "chromedriver.exe")) \
     if setup.DEV else '/usr/local/bin/chromedriver'
 
@@ -130,8 +131,10 @@ class Parser:
         result = []
         service = Service(CHROMEDRIVER_PATH)
         # service.creationflags = CREATE_NO_WINDOW
+
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
+        options.add_argument("--window-size=%s" % WINDOW_SIZE)
         options.add_argument('--no-sandbox')
         driver = webdriver.Chrome(service=service, options=options)
 
