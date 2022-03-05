@@ -181,7 +181,10 @@ class Parser:
         url_ = 'https://pagespeed.web.dev'
         service = Service(CHROMEDRIVER_PATH)
         # service.creationflags = CREATE_NO_WINDOW
+        u_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ' \
+                  'Chrome/98.0.4758.102 Safari/537.36 OPR/84.0.4316.21 '
         options = webdriver.ChromeOptions()
+        options.add_argument('user-agent=' + u_agent)
         options.add_argument('headless')
         options.add_argument("--window-size=%s" % WINDOW_SIZE)
         options.add_argument('--no-sandbox')
