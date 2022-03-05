@@ -16,6 +16,8 @@ def save_json(json_data, root_folder: str = '', file_name: str = 'result', encod
 def get_json_data_from_file(path, encoding='utf-8', stream: int = None):
     path = os.getcwd() + '/' + path
     print_info_msg(location='get_json_data_from_file', msg=f'get data path: {path}', stream=stream)
+    if not os.path.exists(path):
+        return None
     json_content = open(path, 'r', encoding=encoding).read()
     json_data = json.loads(json_content)
     return json_data

@@ -1,6 +1,6 @@
 from celery import shared_task
 
-from main.parser import Parser, ParserAutoStart
+from main.parser import Parser
 from main.save_data import get_json_data_from_file
 
 
@@ -11,13 +11,6 @@ def run_pars():
     print('is run:', parser.is_run)
     if parser.is_run:
         parser.job()
-
-
-@shared_task
-def run_pars_on_background(spreadsheet):
-    parser = ParserAutoStart(spreadsheet)
-    print('spreadsheet:', parser.spreadsheet)
-    parser.job()
 
 
 @shared_task
