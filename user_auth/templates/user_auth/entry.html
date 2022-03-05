@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    {% load user_auth_tags %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>{{ title }}</title>
+    <link type="text/css" href="{% static 'main/css/style.css' %}" rel="stylesheet"/>
+    <link type="text/css" href="{% static 'main/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link type="text/css" href="{% static 'main/css/album.css' %}" rel="stylesheet">
+</head>
+<body>
+    <!-- HEADER TEMPLATE -->
+    {% include 'main/includes/header.html' %}
+    <div class="entry-background">
+    {% block content %}
+        <script> var redirect_url = '{{ redirect | escapejs }}'; </script>
+        <div class="d-none entry-background-img"></div>
+        <div class="d-flex justify-content-center align-items-center container entry-container">
+            <div id="entry-info" class="d-flex justify-content-center align-items-center entry-form flex-wrap">
+                <div class="modal-header">
+                    <h4 class="modal-title">Login to your account</h4>
+                </div>
+                <div class="modal-body">
+                    <p>To use the service, you must create an account or log in if it already exists.</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="signin" class="btn btn-primary main-bt">Sign in</button>
+                    <button id="signup" class="btn btn-secondary main-bt">Sign up</button>
+                </div>
+            </div>
+            <form id="entry-form" class="d-none col justify-content-center align-items-center entry-form entry_form_anim flex-wrap"
+                  method="post">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h4 class="modal-title">Enter login information</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <div class="form-group-base">
+                            {{ form.login.errors }}
+                            <label for="{{ form.login.id_for_label }}">User Login:</label>
+                            {{ form.login }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-group-base">
+                            {{ form.password.errors}}
+                            <label for="{{ form.password.id_for_label }}">Password:</label>
+                            {{ form.password }}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button name="entry-back" type="button" class="btn btn-secondary main-bt">Back</button>
+                    <button id="entry-connect" type="submit" class="btn btn-primary main-bt">Connect</button>
+                </div>
+            </form>
+            <form id="entry-signup-form" class="d-none col justify-content-center align-items-center entry-form flex-wrap"
+                          method="post">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h4 class="modal-title">Register your account</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <div class="form-group-base">
+                            {{ signup_form.username.errors }}
+                            <label for="{{ signup_form.username.id_for_label }}">User Login</label>
+                            {{ signup_form.username }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-group-base">
+                            {{ signup_form.email.errors }}
+                            <label for="{{ signup_form.email.id_for_label }}">Email</label>
+                            {{ signup_form.email }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-group-base">
+                            {{ signup_form.first_name.errors }}
+                            <label for="{{ signup_form.first_name.id_for_label }}">First Name</label>
+                            {{ signup_form.first_name }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-group-base">
+                            {{ signup_form.last_name.errors }}
+                            <label for="{{ signup_form.last_name.id_for_label }}">Last Name</label>
+                            {{ signup_form.last_name }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-group-base">
+                            {{ signup_form.setup_password.errors}}
+                            <label for="{{ signup_form.setup_password.id_for_label }}">Password:</label>
+                            {{ signup_form.setup_password }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-group-base">
+                            {{ signup_form.confirm_password.errors}}
+                            <label for="{{ signup_form.confirm_password.id_for_label }}">Confirm Pass:</label>
+                            {{ signup_form.confirm_password }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-group-base">
+                            {{ signup_form.terms_of_use.errors}}
+                            <label for="{{ signup_form.terms_of_use.id_for_label }}">Terms of use:</label>
+                            <div class="entry-checkbox">
+                                {{ signup_form.terms_of_use }}
+                                <span>I agree with the
+                                    <a class="text-warning" href="#" target="_blank">terms of use</a> and the
+                                    <a class="text-warning" href="#" target="_blank">privacy policy</a> of the service.
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button name="entry-back" type="button" class="btn btn-secondary main-bt">Back</button>
+                    <button id="signup-submit" type="submit" class="btn btn-primary main-bt">Submit</button>
+                </div>
+                <div id="entry-callback" class="d-none justify-content-center align-items-center entry-form flex-wrap">
+                    <div class="modal-body">
+                        <ul id="entry-callback-list">
+                            <li>To use the service, you must create an account or log in if it already exists.</li>
+                        </ul>
+                    </div>
+                </div>
+            </form>
+        </div>
+    {% endblock %}
+    {% block modal %}
+    <!-- THE MODAL WE WILL BE USING -->
+    {% endblock %}
+    </div>
+    <!-- FOOTER TEMPLATE -->
+    {% include 'main/includes/footer.html' %}
+    <!-- JQUERY HERE -->
+    <script src="{% static 'main/js/jquery-3.6.0.min.js' %}"></script>
+    <!-- OTHER SCRIPTS HERE -->
+    <script src="{% static 'main/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'main/js/main.js' %}"></script>
+    <script src="{% static 'user_auth/js/login.js' %}"></script>
+    {% block javascript %}
+    {% endblock %}
+</body>
+</html>

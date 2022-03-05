@@ -1,0 +1,218 @@
+sudo apt-get update
+sudo apt-get install -y git python3-pip python3-dev python3-venv libpq-dev postgresql postgresql-contrib nginx vim curl
+
+# Создание базы данных postgresql:
+sudo -u postgres psql
+postgres=# CREATE DATABASE myproject;
+postgres=# CREATE USER myprojectuser WITH PASSWORD 'password';
+postgres=# ALTER ROLE myprojectuser SET client_encoding TO 'utf8';
+postgres=# ALTER ROLE myprojectuser SET default_transaction_isolation TO 'read committed';
+postgres=# ALTER ROLE myprojectuser SET timezone TO 'UTC';
+postgres=# GRANT ALL PRIVILEGES ON DATABASE myproject TO myprojectuser;
+postgres=# \q
+
+# Обновляем pip:
+sudo -H pip3 install --upgrade pip
+
+# Если нужно клонировать проект с github:
+git clone git_project_link
+username: git_username
+password: git_access_token
+
+# Или создаем директорию проекта:
+mkdir proj_name
+
+# Переходим в папку проекта:
+cd proj_name
+
+# Виртуальное окружение
+python3 -m venv projvenv
+source projvenv/bin/activate
+
+# Установка всех необходимых библиотек из requirements файла:
+pip install -r requirements/prod.txt
+# Или установка по списку:
+pip install django gunicorn psycopg2-binary ...
+
+# Coздание django проекта (если нужно):
+django-admin startproject django_proj_name
+
+# Конфиденциальные данные:
+vim .env 					-создаем и открываем файл .env, копируем-вставляем переменные окружения, сохраняем
+						 (:wq или zz)
+mkdir credentials				-если нужно создаем папку для credentials файлов.
+vim credentials/credentials_file_name.json 	-создаем и открываем файл credentials_file_name.json, копируем-вставляем содержимое
+						 файла, сохраняем (:wq или zz)
+vim /etc/environment				-если нужно задать системные переменные окружения
+
+# Миграции проекта:
+python manage.py makemigrations
+python manage.py migrate
+
+# Создаем суперюзера:
+python manage.py createsuperuser		-выбрать имя пользователя, указать адрес электронной почты, а затем задать и
+						 подтвердить пароль.
+
+# Статика:
+python manage.py collectstatic
+
+# Открываем 8000 порт для теста:
+sudo ufw allow 8000
+
+# Тестовый запуск проекта:
+python manage.py runserver 0.0.0.0:8000		-смотрим по адресу http://server_ip_address:8000
+
+# Проверяем работу gunicorn:
+gunicorn --bind 0.0.0.0:8000 proj_name.wsgi 	-запустится gunicorn, можно проверить http://server_ip_address:8000 (стили админки
+						 не отобразятся)
+
+# Мы убедились, что Gunicorn может взаимодействовать с нашим приложением Django, но теперь нам нужно реализовать более надежный
+  способ запуска и остановки сервера приложений. Для этого мы создадим служебные файлы и файлы сокета systemd.
+
+sudo vim /etc/systemd/system/gunicorn.socket	-создаем/открываем файл и вставляем текст
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+[Unit]
+Description=gunicorn socket
+
+[Socket]
+ListenStream=/run/gunicorn.sock
+
+[Install]
+WantedBy=sockets.target
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+sudo vim /etc/systemd/system/gunicorn.service 	-создаем/открываем файл и вставляем текст
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+[Unit]
+Description=gunicorn daemon
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+User=rootusername (название корневой папки, например ubuntu)
+Group=www-data
+WorkingDirectory=/home/rootusername/../myprojectdir
+ExecStart=/home/rootusername/myprojectdir/myprojectenv/bin/gunicorn \
+          --access-logfile - \
+          --workers 3 \
+          --bind unix:/run/gunicorn.sock \
+          myproject.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+# Запускаем и активируем gunicorn:
+sudo systemctl start gunicorn.socket
+sudo systemctl enable gunicorn.socket
+
+# Проверка файла сокета Gunicorn:
+sudo systemctl status gunicorn.socket
+
+Output
+● gunicorn.socket - gunicorn socket
+     Loaded: loaded (/etc/systemd/system/gunicorn.socket; enabled; vendor prese>
+     Active: active (listening) since Fri 2020-06-26 17:53:10 UTC; 14s ago
+   Triggers: ● gunicorn.service
+     Listen: /run/gunicorn.sock (Stream)
+      Tasks: 0 (limit: 1137)
+     Memory: 0B
+     CGroup: /system.slice/gunicorn.socket
+
+# Затем проверьте наличие файла gunicorn.sock в каталоге /run:
+file /run/gunicorn.sock
+
+# Просмотр проблем если они есть:
+sudo journalctl -u gunicorn.socket
+
+Еще раз проверьте файл /etc/systemd/system/gunicorn.socket и устраните любые обнаруженные проблемы, прежде чем продолжить.
+
+# Тестирование активации сокета:
+sudo systemctl status gunicorn
+
+Output
+● gunicorn.service - gunicorn daemon
+   Loaded: loaded (/etc/systemd/system/gunicorn.service; disabled; vendor preset: enabled)
+   Active: inactive (dead)
+
+# Запускаем и проверяем работу Gunicorn:
+curl --unix-socket /run/gunicorn.sock localhost
+sudo systemctl status gunicorn
+
+Output
+● gunicorn.service - gunicorn daemon
+     Loaded: loaded (/etc/systemd/system/gunicorn.service; disabled; vendor preset: enabled)
+     Active: active (running) since Fri 2020-06-26 18:52:21 UTC; 2s ago
+TriggeredBy: ● gunicorn.socket
+   Main PID: 22914 (gunicorn)
+      Tasks: 4 (limit: 1137)
+     Memory: 89.1M
+     CGroup: /system.slice/gunicorn.service
+             ├─22914 /home/sammy/myprojectdir/myprojectenv/bin/python /home/sammy/myprojectdir/myprojectenv/bin/gunicorn --access-logfile - --workers 3 --bind unix:/run/gunico>
+             ├─22927 /home/sammy/myprojectdir/myprojectenv/bin/python /home/sammy/myprojectdir/myprojectenv/bin/gunicorn --access-logfile - --workers 3 --bind unix:/run/gunico>
+             ├─22928 /home/sammy/myprojectdir/myprojectenv/bin/python /home/sammy/myprojectdir/myprojectenv/bin/gunicorn --access-logfile - --workers 3 --bind unix:/run/gunico>
+             └─22929 /home/sammy/myprojectdir/myprojectenv/bin/python /home/sammy/myprojectdir/myprojectenv/bin/gunicorn --access-logfile - --workers 3 --bind unix:/run/gunico>
+
+Jun 26 18:52:21 django-tutorial systemd[1]: Started gunicorn daemon.
+Jun 26 18:52:21 django-tutorial gunicorn[22914]: [2020-06-26 18:52:21 +0000] [22914] [INFO] Starting gunicorn 20.0.4
+Jun 26 18:52:21 django-tutorial gunicorn[22914]: [2020-06-26 18:52:21 +0000] [22914] [INFO] Listening at: unix:/run/gunicorn.sock (22914)
+Jun 26 18:52:21 django-tutorial gunicorn[22914]: [2020-06-26 18:52:21 +0000] [22914] [INFO] Using worker: sync
+Jun 26 18:52:21 django-tutorial gunicorn[22927]: [2020-06-26 18:52:21 +0000] [22927] [INFO] Booting worker with pid: 22927
+Jun 26 18:52:21 django-tutorial gunicorn[22928]: [2020-06-26 18:52:21 +0000] [22928] [INFO] Booting worker with pid: 22928
+Jun 26 18:52:21 django-tutorial gunicorn[22929]: [2020-06-26 18:52:21 +0000] [22929] [INFO] Booting worker with pid: 22929
+
+# Просмотр проблем если они есть:
+sudo journalctl -u gunicorn
+
+# Проверьте файл /etc/systemd/system/gunicorn.service на наличие проблем. Если вы внесли изменения
+  в файл /etc/systemd/system/gunicorn.service, выполните перезагрузку демона, чтобы заново считать определение службы,
+  и перезапустите процесс Gunicorn с помощью следующей команды:
+sudo systemctl daemon-reload
+sudo systemctl restart gunicorn
+
+# Если нужно перезапустить gunicorn (например после внесения изменений в settings.py):
+sudo systemctl restart gunicorn
+
+
+# Настройки nginx:
+nginx -v 					-проверяем версию nginx
+sudo vim /etc/nginx/sites-available/proj_name	-создаем/открываем файл и вставляем текст
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+server {
+    listen 80;
+    server_name server_domain_or_IP;
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location /static/ {
+        root /home/rootusername/myprojectdir;
+    }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/run/gunicorn.sock;
+    }
+}
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+# Привязка файла к /etc/nginx/sites-enabled:
+sudo ln -s /etc/nginx/sites-available/proj_name /etc/nginx/sites-enabled
+
+# Тестируем конфигурацию nginx:
+sudo nginx -t
+
+# Перезапускаем nginx:
+sudo systemctl restart nginx
+
+# Нам нужна возможность открыть брандмауэр для обычного трафика через порт 80. Поскольку нам больше не потребуется
+  доступ к серверу разработки, мы можем удалить правило и закрыть порт 8000:
+sudo ufw delete allow 8000
+sudo ufw allow 'Nginx Full'

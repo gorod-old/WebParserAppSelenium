@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    {% load main_tags %}
+    {% load user_auth_tags %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>{{ title }}</title>
+    {% if site_info.favicon %}
+    <link rel="icon" type="image/x-icon" href="{% settings_value 'MEDIA_URL' %}{% site_info 'favicon' %}">
+    {% endif %}
+    <link type="text/css" href="{% static 'main/css/style.css' %}" rel="stylesheet"/>
+    <link type="text/css" href="{% static 'main/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link type="text/css" href="{% static 'main/css/album.css' %}" rel="stylesheet">
+</head>
+<body>
+    <!-- HEADER TEMPLATE -->
+    <div class="scroll-container">
+    {% include 'main/includes/header.html' %}
+    <main role="main">
+        <!-- USER PROFILE -->
+        {% get_user_profile user_pk %}
+        <!-- PAGE CONTENT HERE-->
+        {% block main %}
+        {% endblock %}
+    </main>
+    <div class="album py-5 bg-light page-content">
+        {% block content %}
+        {% endblock %}
+    </div>
+    {% block modal %}
+    <!-- THE MODAL WE WILL BE USING -->
+    {% endblock %}
+    <!-- FOOTER TEMPLATE -->
+    {% include 'main/includes/footer.html' %}
+    </div>
+    <!-- JQUERY HERE -->
+    <script src="{% static 'main/js/jquery-3.6.0.min.js' %}"></script>
+    <!-- OTHER SCRIPTS HERE -->
+    <script src="{% static 'main/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'main/js/clipboard.min.js' %}"></script>
+    <script src="{% static 'main/js/main.js' %}"></script>
+    <script src="{% static 'user_auth/js/login.js' %}"></script>
+    {% block javascript %}
+    {% endblock %}
+</body>
+</html>

@@ -1,0 +1,81 @@
+{% extends 'main/base.html' %}
+{% block main %}
+    <section class="jumbotron text-center">
+        <div class="container">
+            <h1 class="jumbotron-heading">{{ page_title }}</h1>
+            <p class="lead text-muted">{{ subtitle }}</p>
+        </div>
+    </section>
+{% endblock %}
+{% block content %}
+    <div class="container title-container">
+        <h2 class="jumbotron-heading">Fill out the form to launch or update the parser.</h2>
+    </div>
+
+    <div id="parser-status" class="container title-container" style="{% if not is_run %}display: none;{% endif %}">
+        <h4 style="color: green;">Parser is run.</h4>
+        <a id="spreadsheet-link" href="{{ spreadsheet }}" target="_blank" class="btn btn-outline-secondary">Spreadsheet Link</a>
+        <button type="button" data-clipboard-text="{{ spreadsheet }}" class="btn btn-outline-secondary clipboard">Copy</button>
+    </div>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <script> var is_run = '{{ is_run | escapejs }}'; </script>
+            <form id="parser-form" class="justify-content-center align-items-center flex-wrap parser-form">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                          <div class="form-group-col">
+                            {{ form.spreadsheet.errors }}
+                            <label for="{{ form.spreadsheet.id_for_label }}">Google spreadsheet link</label>
+                            <div class="form-group-row">
+                                {{ form.spreadsheet }}
+                                 <button id="spreadsheet-clear-bt" type="button" class="btn btn-secondary">Clear</button>
+                            </div>
+                          </div>
+                        </div>
+                    <div class="form-group">
+                          <div class="form-group-col">
+                            <label for="id_app_link">Link to grant access to editing a Google Spreadsheet:</label>
+                            <div class="form-group-row">
+                                <input type="text" name="app_link" id="id_app_link"
+                                       value="gorod-old-service-account@python-bot-331309.iam.gserviceaccount.com"
+                                       style="color: #55a889;" readonly>
+                                <button type="button"
+                                        data-clipboard-text="gorod-old-service-account@python-bot-331309.iam.gserviceaccount.com"
+                                        class="btn btn-secondary clipboard">Copy link</button>
+                            </div>
+                        </div>
+                        </div>
+                </div>
+                <p style="text-align: center;">
+                    <button id="parser-form-stop" style="{% if not is_run %}display: none;{% endif %}"
+                            type="button" class="btn btn-danger my-2 main-bt">Stop</button>
+                    <button id="parser-form-submit" style="{% if is_run %}display: none;{% endif %}"
+                            type="submit" class="btn btn-primary my-2 main-bt">
+                        {% if spreadsheet != '' and is_run %}Update Parser{% else %}Start Parser{% endif %}</button>
+                </p>
+            </form>
+        </div>
+    </div>
+    <div class="load_screen">
+        <div class="middle">
+          <div class="bar bar1"></div>
+          <div class="bar bar2"></div>
+          <div class="bar bar3"></div>
+          <div class="bar bar4"></div>
+          <div class="bar bar5"></div>
+          <div class="bar bar6"></div>
+          <div class="bar bar7"></div>
+          <div class="bar bar8"></div>
+        </div>
+    </div>
+{% endblock %}
+{% block modal %}
+<!-- THE MODAL WE WILL BE USING -->
+    {% include 'main/includes/modals.html' %}
+{% endblock %}
+{% block javascript %}
+  {% load static %}
+  <script src="{% static 'main/js/parser.js' %}"></script>
+{% endblock %}

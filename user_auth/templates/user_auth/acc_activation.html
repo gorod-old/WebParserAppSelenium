@@ -1,0 +1,34 @@
+{% extends 'main/base.html' %}
+{% block main %}
+    <section class="jumbotron text-center">
+        <div class="container">
+            <h1 class="jumbotron-heading">{{ info }}</h1>
+            <p class="lead text-muted">
+                {% if success %}
+                Thanks for the email confirmation. Your account is now active and ready to go. You can edit your
+                personal information and change your password on the <a href="#">profile page</a>.
+                {% else %}
+                Unfortunately we were unable to activate your account, please make sure you are using the correct
+                activation link.
+                {% endif %}
+            </p>
+            <div class="d-flex justify-content-center align-items-center container entry-container">
+
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block content %}
+    <div class="container text-center">
+        <h2 class="jumbotron-heading">Next Step</h2>
+        <p class="lead text-muted" style="max-width: 40rem; margin: 10px auto;">It remains to take the last step. Choose the subscription plan that
+            suits you and get to work. </p>
+        <p>
+            <a href="{% url 'home' %}" class="btn btn-secondary my-2 main-bt">Home page</a>
+            <a href="#" class="btn btn-primary my-2 main-bt">Choose a plan</a>
+        </p>
+    </div>
+{% endblock %}
+{% block modal %}
+<!-- THE MODAL WE WILL BE USING -->
+{% endblock %}

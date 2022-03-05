@@ -1,0 +1,18 @@
+{% autoescape off %}
+<div class="container">
+    <span>Hi {{user}}, you received this email because you registered an account on {{domain}}.<br>
+    Follow the link below to confirm your registration:
+       <a href="http://{{ domain }}/activate/?uidb64={{ uid }}&token={{ token }}">Confirm your email address</a>.
+    </span><br>
+    <p>If you haven't registered on {{domain}}, just ignore this letter.</p><br>
+    <span>We're glad you joined us.</span><br>
+    <span>Our Team.</span>
+    <hr>
+    <span>Please do not reply to this message. Replies are routed to an unmonitored mailbox. <br>
+        If you have questions please visit our home page:
+        <a href="{{ domain }}/home">{{ domain }}</a><br>
+        or write to telegram:
+        <a href="https://t.me/gorod_old">@gorod-old</a>
+    </span>
+</div>
+{% endautoescape %}

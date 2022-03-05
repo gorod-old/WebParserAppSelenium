@@ -1,0 +1,34 @@
+{% load static %}
+<div class="user-info">
+    <span class="lead text-muted">user:</span>
+    <div class="{% if not user_profile %} d-none {% endif %} user-profile" id="user-profile">
+        <div class="btn-group">
+            <a class="nav-link dropdown-toggle user-info-user" data-bs-toggle="dropdown">{{user_profile.username}}</a>
+            <div class="dropdown-menu user-profile-dropdown">
+                <a class="dropdown-item text-muted" href="#"> Profile </a>
+                <div class="dropdown-divider"></div>
+                <a class="nav-link dropdown-item-group-label text-muted"> language: </a>
+                <a class="dropdown-item text-muted {% if user_profile.lang == 'en' %} active {% endif %}" href="#"> English
+                    <img src="{% static 'main/images/united-kingdom.svg' %}"/>
+                </a>
+                <a class="dropdown-item text-muted {% if user_profile.lang == 'ru' %} active {% endif %}" href="#"> Russian
+                    <img src="{% static 'main/images/russia.svg' %}"/>
+                </a>
+                <div class="dropdown-divider"></div>
+                <form>
+                    {% csrf_token %}
+                    <button id="logout" type="button" class="dropdown-item text-muted"> logout </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="{% if user_profile %} d-none {% endif %} user-profile" id="not-user-profile">
+        <div class="btn-group">
+            <a class="nav-link user-info-user">Anonymous</a>
+        </div>
+    </div>
+    {% load main_tags %}
+    <img id="user-info-img-not-profile" class="{% if user_profile %} d-none {% endif %} user-info-img" src="{% static 'main/images/user-img.png' %}"/>
+    <img id="user-info-img" class="{% if not user_profile %} d-none {% endif %} user-info-img" src="{% if user_profile.icon %}{% settings_value 'MEDIA_URL' %}{{ user_profile.icon }}{% else %}{% static 'main/images/user-img.png' %}{% endif %}"/>
+    <a id="user-info-login-bt" class="{% if user_profile %} d-none {% endif %} btn btn-outline-secondary" href="{% url 'login' %}">Login</a>
+</div>
