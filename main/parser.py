@@ -80,7 +80,7 @@ def request_data(url, headers=None, proxies=None, timeout=None):
 def get_tab_data(driver):
     waiting_for_element(driver, (By.XPATH, '//div[@id="speed-index"]/div/div[2]'), 120)
     index, j = -1, 0
-    while index == -1 or j > 10:
+    while index == -1 or j > 5:
         sleep(2)
         els = driver.find_elements(By.XPATH, '//div[@id="speed-index"]/div/div[2]')
         print('els len speed:', len(els))
@@ -95,7 +95,7 @@ def get_tab_data(driver):
     speed = els[index].text.strip().split(' ')[0]
     waiting_for_element(driver, (By.XPATH, '//div[@id="performance"]/div[1]/div[1]/div[1]/a/div[2]'), 120)
     index, j = -1, 0
-    while index == -1 or j > 10:
+    while index == -1 or j > 5:
         sleep(2)
         els = driver.find_elements(By.XPATH, '//div[@id="performance"]/div[1]/div[1]/div[1]/a/div[2]')
         print('els len perf:', len(els))
@@ -238,7 +238,7 @@ class Parser:
                 action.send_keys_to_element(el, url).pause(uniform(.1, .5)) \
                     .send_keys_to_element(el, Keys.ENTER).perform()
                 speed_, performance_ = '', ''
-                for i in range(10):
+                for i in range(5):
                     waiting_for_element(driver, (By.XPATH, '//div[@aria-labelledby="mobile_tab"]'), 120)
                     sleep(5)
                     els = driver.find_elements(By.XPATH, '//div[@aria-labelledby="mobile_tab"]')
@@ -258,11 +258,12 @@ class Parser:
                 }})
 
                 speed_, performance_ = '', ''
-                for i in range(10):
+                for i in range(5):
                     sleep(uniform(0.1, 0.5))
                     driver.refresh()
-                    sleep(1)
+                    sleep(2)
                     driver.find_element(By.XPATH, '//*[@id="desktop_tab"]').click()
+                    sleep(1)
                     waiting_for_element(driver, (By.XPATH, '//div[@aria-labelledby="desktop_tab"]'), 120)
                     sleep(5)
                     el = driver.find_elements(By.XPATH, '//div[@aria-labelledby="desktop_tab"]')[0]
