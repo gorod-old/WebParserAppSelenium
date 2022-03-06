@@ -174,8 +174,9 @@ class Parser:
     def job(self):
         if not self.is_run:
             return
-        t_zone = timezone('Europe/Moscow')
-        time = t_zone.localize(datetime.now()).strftime("%b %d %Y %H:%M:%S")
+        tz = timezone('Europe/Moscow')
+        time = datetime.now()
+        time = time.astimezone(tz).strftime("%d.%m.%Y %H:%M:%S")
         result = [time]
         print(result)
         urls = ['https://yandex.ru', 'https://google.ru']
