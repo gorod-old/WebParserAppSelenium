@@ -12,7 +12,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import requests
 from time import sleep
 from pytz import timezone
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from selenium.webdriver.support.wait import WebDriverWait
 
@@ -120,6 +120,22 @@ def waiting_for_element(driver, element, wait_time):
         print('WebDriver waiting_for_element', 'element timeout exceeded', str(e))
 
 
+def get_table_header(urls):
+    row1 = ['pagespeed.web.dev']
+    for url in urls:
+        row1.append('Мобильные устройства')
+        row1.append(url)
+        row1.append('Компьютер')
+        row1.append(url)
+    row2 = ['']
+    for url in urls:
+        row2.append('Speed Index')
+        row2.append('Производительность')
+        row2.append('Speed Index')
+        row2.append('Производительность')
+    return [row1, row2]
+
+
 class Parser:
     def __init__(self, bot_id=None, name=None):
         super(Parser, self).__init__()
@@ -194,9 +210,11 @@ class Parser:
     def job(self):
         if not self.is_run:
             return
+        json = {}
         tz = timezone('Europe/Moscow')
         time = datetime.now()
         time = time.astimezone(tz).strftime("%d.%m.%Y %H:%M:%S")
+        json.update({'time': time})
         result = [time]
         print(result)
         urls = ['https://yandex.ru', 'https://google.ru']
@@ -211,6 +229,7 @@ class Parser:
         options.add_argument('--no-sandbox')
         driver = webdriver.Chrome(service=service, options=options)
         for url in urls:
+            site = {}
             try:
                 driver.get(url_)
                 waiting_for_element(driver, (By.XPATH, '//input'), 60)
@@ -233,6 +252,10 @@ class Parser:
                     sleep(uniform(0.1, 0.5))
                     driver.refresh()
                 result.extend([speed_, performance_])
+                site.update({'mobile': {
+                    'speed index': speed_,
+                    'performance': performance_
+                }})
 
                 speed_, performance_ = '', ''
                 for i in range(10):
@@ -249,6 +272,11 @@ class Parser:
                     if speed_ != '' and performance_ != '':
                         break
                 result.extend([speed_, performance_])
+                site.update({'desktop': {
+                    'speed index': speed_,
+                    'performance': performance_
+                }})
+                json.update({url: site})
             except Exception as e:
                 print(str(e))
         driver.quit()
@@ -256,19 +284,7 @@ class Parser:
         col_num = len(urls) * 4 + 2
         data, row_count = self.get_table_data()
         if row_count == 0:
-            row1 = ['pagespeed.web.dev']
-            for url in urls:
-                row1.append('Мобильные устройства')
-                row1.append(url)
-                row1.append('Компьютер')
-                row1.append(url)
-            row2 = ['']
-            for url in urls:
-                row2.append('Speed Index')
-                row2.append('Производительность')
-                row2.append('Speed Index')
-                row2.append('Производительность')
-            header = [row1, row2]
+            header = get_table_header(urls)
             range_ = get_range([1, 1], [col_num, 2])
             add_text_to_sheet(self._get_g_service(), self.spreadsheet_id, header, range_, 'ROWS')
             row_count += 2
@@ -278,9 +294,9 @@ class Parser:
         json_data = get_json_data_from_file('result_data/json/result.json')
         print('json data', json_data)
         if json_data:
-            json_data.append(result)
+            json_data.append(json)
         else:
-            json_data = [result]
+            json_data = [json]
         print('json data', json_data)
         save_json(json_data, root_folder='result_data', folder='json')
 
