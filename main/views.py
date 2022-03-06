@@ -1,3 +1,4 @@
+import logging
 from django.http import HttpResponseNotFound, HttpResponseRedirect, JsonResponse
 
 from django.urls import reverse
@@ -9,6 +10,8 @@ from main.g_spreadsheets import check_spreadsheet, get_credentials_email
 from main.parser import Parser
 from user_auth.base import check_auth
 from webparserapp.settings import setup
+
+logger = logging.getLogger(__name__)
 
 
 # Create your views here.
@@ -65,7 +68,7 @@ def run_parser(request):
     #     Parser().job()
     # except Exception as e:
     #     exception = str(e)
-    return JsonResponse({'info': info, 'success': success, 'exception': exception})
+    return JsonResponse({'info': info, 'success': success})
 
 
 def stop_parser(request):

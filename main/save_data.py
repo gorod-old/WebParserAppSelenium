@@ -7,8 +7,6 @@ from MessagePack import print_info_msg
 def save_json(json_data, root_folder: str = '', file_name: str = 'result', encoding='utf-8', folder: str = None):
     path = __get_file_path('json', root_folder=root_folder, file_name=file_name, folder=folder)
     print_info_msg(location='save_json', msg=f'save path: {path}')
-    if os.path.exists(path):
-        os.remove(path)
     with open(path, 'a', encoding=encoding) as file:
         json.dump(json_data, file, indent=4, ensure_ascii=False)
 
