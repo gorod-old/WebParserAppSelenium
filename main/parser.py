@@ -11,7 +11,8 @@ from selenium.webdriver.support import expected_conditions as EC
 
 import requests
 from time import sleep
-from datetime import datetime
+from pytz import timezone
+from datetime import datetime, timedelta
 
 from selenium.webdriver.support.wait import WebDriverWait
 
@@ -173,9 +174,9 @@ class Parser:
     def job(self):
         if not self.is_run:
             return
-        data = f'{datetime.now().day}.{datetime.now().month}.{datetime.now().year} ' \
-               f'{datetime.now().hour}-{datetime.now().minute}'
-        result = [data]
+        t_zone = timezone('Europe/Moscow')
+        time = t_zone.localize(datetime.now()).strftime("%b %d %Y %H:%M:%S")
+        result = [time]
         print(result)
         urls = ['https://yandex.ru', 'https://google.ru']
         url_ = 'https://pagespeed.web.dev'
