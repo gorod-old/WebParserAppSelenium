@@ -29,7 +29,7 @@ user_agents_list = None
 
 
 def get_user_agents_list():
-    ua_list = open('text_files/user-agents.txt').read().strip().split('\n')
+    ua_list = open('text_files/user_agents.txt').read().strip().split('\n')
     for ua in ua_list:
         if len(ua) == 0:
             ua_list.remove(ua)
