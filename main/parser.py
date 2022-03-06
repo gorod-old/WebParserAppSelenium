@@ -80,10 +80,9 @@ def request_data(url, headers=None, proxies=None, timeout=None):
 def get_tab_data(driver):
     waiting_for_element(driver, (By.XPATH, '//div[@id="speed-index"]/div/div[2]'), 120)
     index, j = -1, 0
-    while index == -1 or j > 5:
+    while index == -1 and j <= 5:
         sleep(2)
         els = driver.find_elements(By.XPATH, '//div[@id="speed-index"]/div/div[2]')
-        print('els len speed:', len(els))
         info = []
         for i, el in enumerate(els):
             text = el.text.strip().split(' ')[0]
@@ -95,10 +94,9 @@ def get_tab_data(driver):
     speed = els[index].text.strip().split(' ')[0]
     waiting_for_element(driver, (By.XPATH, '//div[@id="performance"]/div[1]/div[1]/div[1]/a/div[2]'), 120)
     index, j = -1, 0
-    while index == -1 or j > 5:
+    while index == -1 and j <= 5:
         sleep(2)
         els = driver.find_elements(By.XPATH, '//div[@id="performance"]/div[1]/div[1]/div[1]/a/div[2]')
-        print('els len perf:', len(els))
         info = []
         for i, el in enumerate(els):
             text = el.text
@@ -216,7 +214,6 @@ class Parser:
         time = time.astimezone(tz).strftime("%d.%m.%Y %H:%M:%S")
         json.update({'time': time})
         result = [time]
-        print(result)
         urls = ['https://yandex.ru', 'https://google.ru']
         url_ = 'https://pagespeed.web.dev'
         service = Service(CHROMEDRIVER_PATH)
@@ -243,7 +240,6 @@ class Parser:
                     sleep(5)
                     els = driver.find_elements(By.XPATH, '//div[@aria-labelledby="mobile_tab"]')
                     el = els[0]
-                    print('els len:', len(els))
                     speed, performance = get_tab_data(el)
                     speed_ = speed if speed != '' else speed_
                     performance_ = performance if performance != '' else performance_
@@ -282,6 +278,7 @@ class Parser:
                 print(str(e))
         driver.quit()
         print(result)
+        # save in google spreadsheet
         col_num = len(urls) * 4 + 2
         data, row_count = self.get_table_data()
         if row_count == 0:
@@ -292,6 +289,7 @@ class Parser:
         range_ = get_range([1, row_count + 1], [col_num, row_count + 1])
         print(range_)
         add_text_to_sheet(self._get_g_service(), self.spreadsheet_id, [result], range_, 'ROWS')
+        # save json
         json_data = get_json_data_from_file('result_data/json/result.json')
         print('json data', json_data)
         if json_data:
