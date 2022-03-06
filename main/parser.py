@@ -1,6 +1,6 @@
 import os
 import uuid
-from random import uniform
+from random import uniform, choice
 # from subprocess import CREATE_NO_WINDOW
 
 from selenium import webdriver
@@ -16,6 +16,7 @@ from datetime import datetime, timedelta
 
 from selenium.webdriver.support.wait import WebDriverWait
 
+from MessagePack import print_info_msg
 from main.g_spreadsheets import get_spreadsheet_id, get_service, get_data_from_sheet, get_range, add_text_to_sheet
 from main.models import WorkTable
 from main.save_data import save_json, get_json_data_from_file
@@ -24,6 +25,16 @@ from webparserapp.settings import setup
 WINDOW_SIZE = "1920,1080"
 CHROMEDRIVER_PATH = os.path.normpath(os.path.join(os.getcwd(), 'chromedriver', "chromedriver.exe")) \
     if setup.DEV else '/usr/local/bin/chromedriver'
+user_agents_list = None
+
+
+def get_user_agents_list():
+    ua_list = open('text_files/user-agents.txt').read().strip().split('\n')
+    for ua in ua_list:
+        if len(ua) == 0:
+            ua_list.remove(ua)
+    print_info_msg('get_user_agents_list', f' user agent list count: {len(ua_list)}')
+    return ua_list
 
 
 def get_request_data(url: str, random_wait: tuple = (.01, .05)):
@@ -68,8 +79,8 @@ def request_data(url, headers=None, proxies=None, timeout=None):
 
 def get_tab_data(driver):
     waiting_for_element(driver, (By.XPATH, '//div[@id="speed-index"]/div/div[2]'), 120)
-    index = -1
-    while index == -1:
+    index, j = -1, 0
+    while index == -1 or j > 10:
         sleep(2)
         els = driver.find_elements(By.XPATH, '//div[@id="speed-index"]/div/div[2]')
         print('els len speed:', len(els))
@@ -80,10 +91,11 @@ def get_tab_data(driver):
             if text != '':
                 index = i
         print('els text:', info)
+        j += 1
     speed = els[index].text.strip().split(' ')[0]
     waiting_for_element(driver, (By.XPATH, '//div[@id="performance"]/div[1]/div[1]/div[1]/a/div[2]'), 120)
-    index = -1
-    while index == -1:
+    index, j = -1, 0
+    while index == -1 or j > 10:
         sleep(2)
         els = driver.find_elements(By.XPATH, '//div[@id="performance"]/div[1]/div[1]/div[1]/a/div[2]')
         print('els len perf:', len(els))
@@ -94,6 +106,7 @@ def get_tab_data(driver):
             if text != '':
                 index = i
         print('els text:', info)
+        j += 1
     performance = els[index].text
     print('speed, performance:', [speed, performance])
     return speed, performance
@@ -171,6 +184,13 @@ class Parser:
     def spreadsheet(self):
         return self.spreadsheet_link
 
+    @classmethod
+    def _get_user_agent(cls):
+        global user_agents_list
+        if user_agents_list is None:
+            user_agents_list = get_user_agents_list()
+        return choice(user_agents_list) if len(user_agents_list) > 0 else None
+
     def job(self):
         if not self.is_run:
             return
@@ -183,8 +203,7 @@ class Parser:
         url_ = 'https://pagespeed.web.dev'
         service = Service(CHROMEDRIVER_PATH)
         # service.creationflags = CREATE_NO_WINDOW
-        u_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ' \
-                  'Chrome/98.0.4758.102 Safari/537.36 OPR/84.0.4316.21 '
+        u_agent = self._get_user_agent()
         options = webdriver.ChromeOptions()
         options.add_argument('user-agent=' + u_agent)
         options.add_argument('headless')
