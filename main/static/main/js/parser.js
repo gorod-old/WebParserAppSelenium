@@ -68,8 +68,8 @@ $(function() {
                     $('#parser-form-stop').css("display", "inline-block");
                     $('#parser-status').css("display", "block");
                     $('#spreadsheet-link').attr("href", spreadsheet);
-                    $('.load_screen').css("display", "none");
                 }
+                $('.load_screen').css("display", "none");
             }
         });
     }

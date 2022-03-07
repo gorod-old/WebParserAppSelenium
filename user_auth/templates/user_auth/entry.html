@@ -27,7 +27,7 @@
                 </div>
                 <div class="modal-footer">
                     <button id="signin" class="btn btn-primary main-bt">Sign in</button>
-                    <button id="signup" class="btn btn-secondary main-bt">Sign up</button>
+                    <button id="signup" class="btn btn-secondary main-bt" style="{% if not signup %} display: none; {% endif %}">Sign up</button>
                 </div>
             </div>
             <form id="entry-form" class="d-none col justify-content-center align-items-center entry-form entry_form_anim flex-wrap"

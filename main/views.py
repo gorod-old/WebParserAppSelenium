@@ -26,6 +26,7 @@ def index(request):
         'subtitle': setup.PROJ_SUBTITLE,
         'user_pk': request.user.pk,
         'spreadsheet': '' if not spreadsheet else spreadsheet,
+        'bot_email': get_credentials_email(),
         'is_run': is_run,
         'form': form
     }
@@ -63,10 +64,10 @@ def run_parser(request):
     else:
         info = 'update parser'
     success = Parser.start()
-    # try:
-    #     Parser().job()
-    # except Exception as e:
-    #     print(str(e))
+    try:
+        Parser().job()
+    except Exception as e:
+        print(str(e))
     return JsonResponse({'info': info, 'success': success})
 
 

@@ -287,16 +287,13 @@ class Parser:
             add_text_to_sheet(self._get_g_service(), self.spreadsheet_id, header, range_, 'ROWS')
             row_count += 2
         range_ = get_range([1, row_count + 1], [col_num, row_count + 1])
-        print(range_)
         add_text_to_sheet(self._get_g_service(), self.spreadsheet_id, [result], range_, 'ROWS')
         # save json
         json_data = get_json_data_from_file('result_data/json/result.json')
-        print('json data', json_data)
         if json_data:
             json_data.append(json)
         else:
             json_data = [json]
-        print('json data', json_data)
         save_json(json_data, root_folder='result_data', folder='json')
 
     def _get_g_service(self):
@@ -308,8 +305,7 @@ class Parser:
         data = get_data_from_sheet(self._get_g_service(), self.spreadsheet_id, range_='A1:B', major_dimension='ROWS')
         rows = data.get('values')
         row_count = len(rows) if rows else 0
-        print('table data:', data)
-        print('row count: ', row_count)
+        print('table row count: ', row_count)
         return data, row_count
 
 

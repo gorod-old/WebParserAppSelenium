@@ -138,7 +138,7 @@ GitHub.sublime-settings
 
 *.ini
 *.session
-credentials/*
+.credentials
 *__pycache__
 
 result_data

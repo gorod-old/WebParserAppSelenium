@@ -12,6 +12,7 @@ from user_auth.exceptions import PayloadException
 from user_auth.tokens import account_activation_token
 from user_auth.forms import LoginForm, SignUpForm
 from user_auth.models import *
+from webparserapp.settings import setup
 from .tasks import send_acc_verification_mail
 
 
@@ -25,7 +26,8 @@ def entry(request):
         'title': f'{get_site_name()} - Entry',
         'form': form,
         'signup_form': signup_form,
-        'redirect': redirect
+        'redirect': redirect,
+        'signup': setup.SIGNUP
     }
     return render(request, 'user_auth/entry.html', context=context)
 
