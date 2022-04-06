@@ -1,0 +1,22 @@
+Подготовка VM под Selenium Web Driver:
+
+sudo apt-get update
+sudo apt-get install -y unzip openjdk-8-jre-headless xvfb libxi6 libgconf-2-4
+
+
+# Install Chrome:
+
+wget  https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+sudo dpkg -i ./google-chrome-stable_current_amd64.deb
+sudo apt --fix-broken install
+sudo dpkg -i google-chrome-stable_current_amd64.deb
+dpkg -l | grep chrome
+
+# Install ChromeDriver:
+
+wget -N https://chromedriver.storage.googleapis.com/99.0.4844.51/chromedriver_linux64.zip -P ~/
+unzip ~/chromedriver_linux64.zip -d ~/
+rm ~/chromedriver_linux64.zip
+sudo mv -f ~/chromedriver /usr/local/bin/chromedriver
+sudo chown root:root /usr/local/bin/chromedriver
+sudo chmod 0755 /usr/local/bin/chromedriver

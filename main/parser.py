@@ -216,6 +216,7 @@ class Parser:
         result = [time]
         urls = ['https://yandex.ru', 'https://google.ru']
         url_ = 'https://pagespeed.web.dev'
+
         service = Service(CHROMEDRIVER_PATH)
         # service.creationflags = CREATE_NO_WINDOW
         u_agent = self._get_user_agent()
@@ -225,6 +226,7 @@ class Parser:
         options.add_argument("--window-size=%s" % WINDOW_SIZE)
         options.add_argument('--no-sandbox')
         driver = webdriver.Chrome(service=service, options=options)
+
         for url in urls:
             site = {}
             try:
